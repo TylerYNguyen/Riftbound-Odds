@@ -1,0 +1,496 @@
+{
+ "id": "demo",
+ "name": "Demo Nexus Night (sample data)",
+ "start": "2026-09-23T23:00:00+00:00",
+ "timezone": "America/New_York",
+ "store": "Sample Game Store",
+ "lifecycle": "IN_PROGRESS",
+ "playerCount": 12,
+ "swiss": {
+  "name": "Phase 1",
+  "status": "IN_PROGRESS",
+  "plannedRounds": 4
+ },
+ "laterPhases": [],
+ "rounds": [
+  {
+   "id": 5001,
+   "number": 1,
+   "status": "COMPLETE",
+   "isFinal": false,
+   "hasPairings": true,
+   "matches": [
+    {
+     "id": 1,
+     "table": 1,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1001,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1002,
+       "name": "Player C",
+       "handle": "BaronBait"
+      },
+      {
+       "id": 1001,
+       "name": "Player B",
+       "handle": "NexusNomad"
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "table": 2,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1000,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1004,
+       "name": "Player E",
+       "handle": "PiltoverPete"
+      },
+      {
+       "id": 1000,
+       "name": "Player A",
+       "handle": "RuneRunner"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "table": 3,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1007,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1007,
+       "name": "Player H",
+       "handle": "DemaciaDan"
+      },
+      {
+       "id": 1003,
+       "name": "Player D",
+       "handle": "ShurimaSands"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "table": 4,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1005,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1005,
+       "name": "Player F",
+       "handle": "ZaunZealot"
+      },
+      {
+       "id": 1009,
+       "name": "Player J",
+       "handle": "VoidVera"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "table": 5,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1010,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1010,
+       "name": "Player K",
+       "handle": "BilgeRat"
+      },
+      {
+       "id": 1008,
+       "name": "Player I",
+       "handle": "FreljordFox"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "table": 6,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1006,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1006,
+       "name": "Player G",
+       "handle": "IonianInk"
+      },
+      {
+       "id": 1011,
+       "name": "Player L",
+       "handle": "TargonTess"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 5002,
+   "number": 2,
+   "status": "COMPLETE",
+   "isFinal": false,
+   "hasPairings": true,
+   "matches": [
+    {
+     "id": 7,
+     "table": 1,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1005,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1005,
+       "name": "Player F",
+       "handle": "ZaunZealot"
+      },
+      {
+       "id": 1007,
+       "name": "Player H",
+       "handle": "DemaciaDan"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "table": 2,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1000,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1000,
+       "name": "Player A",
+       "handle": "RuneRunner"
+      },
+      {
+       "id": 1001,
+       "name": "Player B",
+       "handle": "NexusNomad"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "table": 3,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1010,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1006,
+       "name": "Player G",
+       "handle": "IonianInk"
+      },
+      {
+       "id": 1010,
+       "name": "Player K",
+       "handle": "BilgeRat"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "table": 4,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1008,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1011,
+       "name": "Player L",
+       "handle": "TargonTess"
+      },
+      {
+       "id": 1008,
+       "name": "Player I",
+       "handle": "FreljordFox"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "table": 5,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1009,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1002,
+       "name": "Player C",
+       "handle": "BaronBait"
+      },
+      {
+       "id": 1009,
+       "name": "Player J",
+       "handle": "VoidVera"
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "table": 6,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1004,
+     "gamesWinner": 2,
+     "gamesLoser": 0,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1003,
+       "name": "Player D",
+       "handle": "ShurimaSands"
+      },
+      {
+       "id": 1004,
+       "name": "Player E",
+       "handle": "PiltoverPete"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 5003,
+   "number": 3,
+   "status": "IN_PROGRESS",
+   "isFinal": false,
+   "hasPairings": true,
+   "matches": [
+    {
+     "id": 13,
+     "table": 1,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1000,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1000,
+       "name": "Player A",
+       "handle": "RuneRunner"
+      },
+      {
+       "id": 1010,
+       "name": "Player K",
+       "handle": "BilgeRat"
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "table": 2,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1008,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1005,
+       "name": "Player F",
+       "handle": "ZaunZealot"
+      },
+      {
+       "id": 1008,
+       "name": "Player I",
+       "handle": "FreljordFox"
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "table": 3,
+     "status": "COMPLETE",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": 1009,
+     "gamesWinner": 2,
+     "gamesLoser": 1,
+     "gamesDrawn": 0,
+     "players": [
+      {
+       "id": 1001,
+       "name": "Player B",
+       "handle": "NexusNomad"
+      },
+      {
+       "id": 1009,
+       "name": "Player J",
+       "handle": "VoidVera"
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "table": 4,
+     "status": "IN_PROGRESS",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": null,
+     "gamesWinner": null,
+     "gamesLoser": null,
+     "gamesDrawn": null,
+     "players": [
+      {
+       "id": 1007,
+       "name": "Player H",
+       "handle": "DemaciaDan"
+      },
+      {
+       "id": 1006,
+       "name": "Player G",
+       "handle": "IonianInk"
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "table": 5,
+     "status": "IN_PROGRESS",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": null,
+     "gamesWinner": null,
+     "gamesLoser": null,
+     "gamesDrawn": null,
+     "players": [
+      {
+       "id": 1004,
+       "name": "Player E",
+       "handle": "PiltoverPete"
+      },
+      {
+       "id": 1011,
+       "name": "Player L",
+       "handle": "TargonTess"
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "table": 6,
+     "status": "IN_PROGRESS",
+     "isBye": false,
+     "isDraw": false,
+     "isIntentionalDraw": false,
+     "isDoubleLoss": false,
+     "winner": null,
+     "gamesWinner": null,
+     "gamesLoser": null,
+     "gamesDrawn": null,
+     "players": [
+      {
+       "id": 1002,
+       "name": "Player C",
+       "handle": "BaronBait"
+      },
+      {
+       "id": 1003,
+       "name": "Player D",
+       "handle": "ShurimaSands"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "fetchedAt": "2026-09-23T23:59:00Z",
+ "isDemo": true
+}

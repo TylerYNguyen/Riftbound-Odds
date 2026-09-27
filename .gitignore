@@ -1,0 +1,30 @@
+# Dependencies and build output
+node_modules/
+dist/
+
+# Vercel's local project link
+.vercel/
+
+# Secrets: .env, .env.local, ... (set real values in Vercel → Settings → Environment Variables)
+.env*
+
+# Working notes and Claude's files: kept on this computer only
+notes.md
+Claude outputs/
+
+# Local test setups
+vite.test.config.js
+test-results/
+playwright-report/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor and operating-system files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini

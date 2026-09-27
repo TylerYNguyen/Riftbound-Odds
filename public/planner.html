@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Riftbound Swiss Odds</title>
+<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --ink:#15202B; --muted:#5B6773; --line:#D5DBE1;
+  --accent:#0C7480; --accent-soft:#D4ECEE; --gold:#A77A22; --gold-soft:#F4E8CF;
+  --good:#1E7A46; --good-soft:#DDF1E4; --bad:#8C3A3A; --bad-soft:#F3E0E0;
+  --bar:#0C7480; --bar-dim:#A9C9CD;
+  --display:"Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E141A; --surface:#151E27; --ink:#E4EAF0; --muted:#8E9BA8; --line:#26323D;
+    --accent:#45C4CE; --accent-soft:#16363B; --gold:#D8A94F; --gold-soft:#3A2F17;
+    --good:#6BCB8F; --good-soft:#173324; --bad:#E08A8A; --bad-soft:#3A1D1D;
+    --bar:#45C4CE; --bar-dim:#2B4E53;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141A; --surface:#151E27; --ink:#E4EAF0; --muted:#8E9BA8; --line:#26323D;
+  --accent:#45C4CE; --accent-soft:#16363B; --gold:#D8A94F; --gold-soft:#3A2F17;
+  --good:#6BCB8F; --good-soft:#173324; --bad:#E08A8A; --bad-soft:#3A1D1D;
+  --bar:#45C4CE; --bar-dim:#2B4E53;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:28px 16px 48px}
+.wrap{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.wrap > *, .you > *{min-width:0}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,5vw,38px);letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1.1}
+header h1 span{color:var(--accent)}
+header p{margin:8px 0 0;color:var(--muted);max-width:64ch}
+h2.sec{font-family:var(--display);font-weight:700;font-size:20px;margin:0;letter-spacing:.01em}
+.label{font-family:var(--display);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px}
+.field{display:grid;gap:6px;align-content:start}
+.field input[type=number]{font:500 18px var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+.field input:disabled{opacity:.45}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hint{font-size:12px;color:var(--muted);min-height:1.2em}
+.hint button{font:inherit;color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.check{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);cursor:pointer}
+.check input{accent-color:var(--accent)}
+.check.big{font:500 14px var(--body);color:var(--ink)}
+.check.big input{width:16px;height:16px}
+.settings{display:grid;gap:16px}
+.day2{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;padding-top:16px;border-top:1px solid var(--line)}
+.day2-toggle{display:grid;gap:6px;align-content:start}
+.day2.off .day2-f{display:none}
+.sm{display:none}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.stat{padding:12px 16px;border-left:3px solid var(--line)}
+.stat.cut{border-color:var(--good)} .stat.bubble{border-color:var(--gold)} .stat.field-s{border-color:var(--accent)} .stat.d2{border-color:var(--ink)}
+.stat .v{font:700 24px var(--display);margin-top:2px;font-variant-numeric:tabular-nums}
+.stat .s{font-size:13px;color:var(--muted)}
+
+.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:var(--accent);transition:width .15s}
+
+/* Your record */
+.you{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+#youOut{display:grid;gap:14px}
+.you-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.rec-inputs{display:grid;grid-template-columns:repeat(3,minmax(70px,110px));gap:12px}
+.mode{font:500 12px var(--mono);padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.verdict{font-size:16px;max-width:70ch}
+.verdict b{font-family:var(--mono);font-weight:500}
+.err{color:var(--bad)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.fact{background:var(--bg);border-radius:8px;padding:10px 14px}
+.fact .v{font:700 22px var(--display);font-variant-numeric:tabular-nums}
+.fact .s{font-size:12px;color:var(--muted)}
+
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.you .tablebox{border-radius:8px}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:560px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--surface)}
+tr:last-child td{border-bottom:0}
+td.rec{font:500 15px var(--mono)}
+td.num{font-family:var(--mono);text-align:right} th.num{text-align:right} th.c,td.c{text-align:center}
+td.barcell{width:30%;min-width:120px}
+.bar{height:10px;border-radius:2px;background:var(--bar)}
+.bar.dim{background:var(--bar-dim)}
+tr.group-start td{border-top:2px solid var(--line)}
+tr.mine td{background:var(--accent-soft)}
+.tag{font:500 11px var(--display);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:8px}
+.pill{display:inline-block;font:600 12px var(--mono);padding:3px 8px;border-radius:999px;min-width:64px;text-align:center}
+.p-lock{background:var(--good-soft);color:var(--good)}
+.p-likely{background:var(--accent-soft);color:var(--accent)}
+.p-bubble{background:var(--gold-soft);color:var(--gold)}
+.p-out{background:var(--bad-soft);color:var(--bad)}
+.p-none{color:var(--muted)}
+.yes{color:var(--good);font-weight:600} .no{color:var(--muted)}
+
+.notes{color:var(--muted);font-size:13px;max-width:72ch;display:grid;gap:6px}
+.notes h2{font:500 12px var(--display);letter-spacing:.12em;text-transform:uppercase;margin:0;color:var(--ink)}
+.notes p{margin:0}
+@media (prefers-reduced-motion:reduce){.progress i{transition:none}}
+
+/* ---------- phones (desktop unchanged) ---------- */
+@media (max-width:640px){
+  body{padding:16px max(12px,env(safe-area-inset-right,0px)) 40px max(12px,env(safe-area-inset-left,0px));-webkit-tap-highlight-color:transparent}
+  .wrap{gap:16px}
+  .panel{padding:16px 14px}
+  header h1{font-size:clamp(24px,7vw,30px)}
+  header p{font-size:14px;margin-top:6px}
+  .label{font-size:11.5px;letter-spacing:.1em}
+  /* settings as a list: label on the left, box on the right, hint underneath */
+  .controls,.day2{grid-template-columns:minmax(0,1fr);gap:14px}
+  .controls .field,.day2-f{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);column-gap:12px;row-gap:4px;align-items:center}
+  .controls .field .hint,.day2-f .hint{grid-column:1 / -1;min-height:0}
+  .field input[type=number]{font-size:17px;min-height:44px}
+  .day2.off .day2-f{display:none}
+  .check.big{min-height:36px}
+  .check.big input{width:20px;height:20px}
+  /* summary tiles two by two */
+  .summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .stat{padding:8px 10px 8px 12px}
+  .stat .v{font-size:20px}
+  .stat .s{font-size:12px}
+  .rec-inputs{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .verdict{font-size:15px}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .fact{padding:8px 10px}
+  .fact .v{font-size:19px}
+  /* tables fit the screen: no sideways scrolling */
+  table{min-width:0}
+  th,td{padding:8px 7px}
+  th{font-size:10.5px;letter-spacing:.06em;white-space:normal;vertical-align:bottom;line-height:1.25}
+  th:first-child,td:first-child{padding-left:10px}
+  th:last-child,td:last-child{padding-right:10px}
+  td.rec{font-size:14px}
+  td.num{font-size:13.5px}
+  .pill{min-width:0;padding:3px 7px;font-size:11.5px}
+  .tag{display:block;margin:2px 0 0;font-size:10px;white-space:normal;line-height:1.3}
+  table.final .barcell{display:none}
+  th .lg{display:none}
+  th .sm{display:inline}
+  table.paths th:nth-child(2),table.paths td:nth-child(2){display:none}
+  #youOut .tablebox{max-height:60vh;overflow:auto}
+  #youOut th{position:sticky;top:0;z-index:1}
+}
+@media (max-width:374px){
+  .summary{grid-template-columns:minmax(0,1fr)}
+  .controls .field,.day2-f{grid-template-columns:minmax(0,1fr)}
+  th,td{padding:7px 4px}
+  .pill{padding:3px 5px}
+  th{font-size:9.5px}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="label">Riftbound · Swiss planner · <a href="/" style="color:var(--accent);white-space:nowrap">Live event odds →</a></div>
+    <h1>How many players finish at each record — <span>and does yours make the cut?</span></h1>
+    <p>Enter the event size and structure. The calculator plays out the Swiss rounds thousands of times with points-based pairings (Win 3, Draw 1, Loss 0) and reports what the standings usually look like.</p>
+  </header>
+
+  <form class="panel settings" id="form" autocomplete="off">
+   <div class="controls">
+    <div class="field">
+      <label class="label" for="players">Players</label>
+      <input id="players" type="number" min="4" max="4096" value="64" inputmode="numeric">
+      <div class="hint" id="byeHint"></div>
+    </div>
+    <div class="field">
+      <label class="label" for="rounds" id="roundsLabel">Swiss rounds</label>
+      <input id="rounds" type="number" min="1" max="18" value="6" inputmode="numeric">
+      <div class="hint" id="roundHint"></div>
+    </div>
+    <div class="field">
+      <label class="label" for="draws">Draw rate %</label>
+      <input id="draws" type="number" min="0" max="60" step="1" value="3" inputmode="decimal">
+      <div class="hint">About 3% of matches at big events</div>
+    </div>
+    <div class="field">
+      <label class="label" for="cut">Top cut / target rank</label>
+      <input id="cut" type="number" min="1" max="4096" value="8" inputmode="numeric">
+      <div class="hint" id="cutHint">Finish in the top N</div>
+    </div>
+    <div class="field">
+      <label class="label" for="sims">Simulations</label>
+      <input id="sims" type="number" min="200" max="50000" step="500" value="4000" inputmode="numeric">
+      <div class="hint">More = smoother, slower</div>
+    </div>
+   </div>
+   <div class="day2 off" id="day2Row">
+    <div class="day2-toggle">
+      <label class="check big"><input id="threshOn" type="checkbox"> Event has a Day 2</label>
+      <div class="hint" id="day2Hint">Only players on enough points after Day 1 come back for more rounds.</div>
+    </div>
+    <div class="field day2-f">
+      <label class="label" for="thresh">Points to make Day 2</label>
+      <input id="thresh" type="number" min="1" max="54" value="12" inputmode="numeric">
+      <div class="hint" id="threshHint"></div>
+    </div>
+    <div class="field day2-f">
+      <label class="label" for="rounds2">Day 2 rounds</label>
+      <input id="rounds2" type="number" min="1" max="12" value="4" inputmode="numeric">
+      <div class="hint" id="rounds2Hint"></div>
+    </div>
+   </div>
+  </form>
+
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+
+  <section class="summary" id="summary" aria-live="polite"></section>
+
+  <section class="panel you" aria-labelledby="youTitle">
+    <div class="you-head">
+      <h2 class="sec" id="youTitle">Your record</h2>
+      <span class="mode" id="modeTag">—</span>
+    </div>
+    <div class="rec-inputs">
+      <div class="field"><label class="label" for="yw">Wins</label><input id="yw" type="number" min="0" max="30" value="3" inputmode="numeric"></div>
+      <div class="field"><label class="label" for="yl">Losses</label><input id="yl" type="number" min="0" max="30" value="1" inputmode="numeric"></div>
+      <div class="field"><label class="label" for="yd">Draws</label><input id="yd" type="number" min="0" max="30" value="0" inputmode="numeric"></div>
+    </div>
+    <div class="hint" id="youHint">Enter a finished record to see where it lands, or a record partway through the event to see what you need from here.</div>
+    <div id="youOut" aria-live="polite"></div>
+  </section>
+
+  <section style="display:grid;gap:10px">
+    <h2 class="sec">Every final record</h2>
+    <div class="tablebox">
+      <table class="final">
+        <thead><tr>
+          <th>Record<span class="lg"> (W-L-D)</span></th><th class="num"><span class="lg">Points</span><span class="sm">Pts</span></th><th class="num"><span class="lg">Expected players</span><span class="sm">Exp. players</span></th><th class="barcell"></th><th class="num">At or above</th><th class="num" id="cutHead">Top 8 chance</th><th class="c" id="d2Head">Day 2</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>How to read this</h2>
+    <p><strong>Expected players</strong> is the average number of people who finish on that exact record. <strong>At or above</strong> counts everyone on that many points or more — if it's under your cut size, that points total is usually safe.</p>
+    <p><strong>Top-cut chance</strong> is how often a player on that record finished inside the top N. Players on the same points are split by tiebreakers (opponents' match win %, then game win %, then opponents' game win %); here those are treated as a coin flip, since they depend on who you happened to play.</p>
+    <p><strong>Day 2</strong>: turn it on for events where only players on enough points after Day 1 come back. Everyone below the line is out after Day 1 and can't make the top cut; Day 2 players keep their points and play on. If you're partway through Day 1, "Your record" shows what you need for the rest of the day, and the odds already include playing Day 2.</p>
+    <p><strong>Mid-event mode</strong> plays out the rest of the event with your results locked in, then tries every combination of wins, losses and draws for your remaining rounds. An ID is modeled as a draw for both you and your opponent.</p>
+    <p>Assumptions: every match is a 50/50 between equal players, the odd player out gets a bye counted as a win, and pairings go high-to-high by points without rematch checks. Real events add intentional draws and drops, which usually loosen the bubble slightly.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  let roundsTouched = false, threshTouched = false, job = 0;
+  let last = null; // last main results for instant record lookups
+
+  const suggestedRounds = n => Math.max(1, Math.ceil(Math.log2(n)));
+  const day2Default = R => Math.max(1, Math.ceil(R*0.6)); // e.g. 8 rounds on Day 1 → 5 on Day 2
+  // Official Day 2 rule: two losses or better (18 pts after 8 rounds at RQs, 12 after 6 at Regional Championships)
+  const threshDefault = R => Math.max(3, 3*(R-2));
+  // An empty box (mid-edit) falls back to the default instead of counting as 0
+  const num = (v,a,b,d) => { if(String(v).trim()==="") return d; v=Number(v); return Number.isFinite(v)?Math.min(b,Math.max(a,Math.round(v))):d; };
+
+  function readParams(){
+    const N = num($("players").value,4,4096,64), R = num($("rounds").value,1,18,6);
+    const on = $("threshOn").checked;
+    const dRaw = $("draws").value.trim()==="" ? NaN : Number($("draws").value);
+    return {
+      N, R,
+      d: (Number.isFinite(dRaw)?Math.min(60,Math.max(0,dRaw)):3)/100,
+      K: num($("cut").value,1,N,Math.min(8,N)),
+      T: on ? num($("thresh").value,1,54,threshDefault(R)) : null,
+      R2: on ? num($("rounds2").value,1,12,day2Default(R)) : 0,
+      S: num($("sims").value,200,50000,4000)
+    };
+  }
+  function readRecord(){
+    return { w:num($("yw").value,0,30,0), l:num($("yl").value,0,30,0), d:num($("yd").value,0,30,0) };
+  }
+
+  function updateHints(p){
+    const s = suggestedRounds(p.N), lo = 2**(s-1)+1, hi = 2**s;
+    $("roundHint").innerHTML = p.R===s ? `${s} rounds fits ${s===1?2:lo}–${hi} players (2<sup>${s}</sup> = ${hi})` :
+      `Standard for ${p.N} is ${s} · <button type="button" id="useStd">use ${s}</button>`;
+    const b=$("useStd"); if(b) b.onclick=()=>{ $("rounds").value=s; roundsTouched=false; schedule(); };
+    $("byeHint").textContent = p.N%2 ? "Odd count: one bye each round" : "Even count: no byes";
+    $("cutHead").textContent = `Top ${p.K} chance`;
+    const cutIn = Number($("cut").value);
+    $("cutHint").textContent = cutIn > p.N ? `Only ${p.N} players, so counted as top ${p.N}` : "Finish in the top N";
+    $("day2Row").classList.toggle("off", p.T===null);
+    $("roundsLabel").textContent = p.T===null ? "Swiss rounds" : "Day 1 rounds";
+    $("d2Head").hidden = p.T===null;
+    let th="";
+    if(p.T!==null){
+      const max=3*p.R;
+      if(p.T>max) th=`<span class="err">Out of reach: ${p.R} rounds give at most ${max} pts</span>`;
+      else { let w=Math.floor(p.T/3), d=p.T%3; if(w+d>p.R){ w=Math.ceil(p.T/3); d=0; } th=`About ${w}-${p.R-w-d}-${d} or better after Day 1`; }
+      $("rounds2Hint").textContent = `${p.R+p.R2} rounds in total for Day 2 players`;
+    }
+    $("threshHint").innerHTML=th;
+  }
+
+  /* ---------- core simulation ----------
+     Day 1 is R rounds for everyone. With a Day 2 (R2 > 0), only players on T+ points
+     after Day 1 play the next R2 rounds, and only they can make the top cut.
+     track (optional): player 0's results are fixed by track.seq round by round; rounds
+     past the end of seq are played like anyone else's. track.forceIn keeps player 0
+     in Day 2 (they told us they're there). */
+  function simulateEvent(p, onDone, track){
+    const {N,R,d,K} = p, R2 = p.R2||0, T = p.T, RT = R+R2, maxPts = 3*RT;
+    const pts=new Int16Array(N), w=new Int8Array(N), l=new Int8Array(N), dr=new Int8Array(N), bye=new Uint8Array(N);
+    const act=new Int32Array(N), order=new Int32Array(N), tmp=new Int32Array(N), bucket=new Int32Array(maxPts+2);
+    let M=N; for(let i=0;i<N;i++) act[i]=i;   // players still in the event
+    let qualified=N;
+    const seq = track ? track.seq : null;
+    function rankOrder(){
+      // Rebuild from the players still in every round, shuffle, then sort by points
+      for(let i=0;i<M;i++) order[i]=act[i];
+      for(let i=M-1;i>0;i--){const j=(Math.random()*(i+1))|0;const t=order[i];order[i]=order[j];order[j]=t;}
+      bucket.fill(0);
+      for(let i=0;i<M;i++) bucket[maxPts-pts[order[i]]+1]++;
+      for(let k=1;k<bucket.length;k++) bucket[k]+=bucket[k-1];
+      for(let i=0;i<M;i++){const x=order[i];tmp[bucket[maxPts-pts[x]]++]=x;}
+      for(let i=0;i<M;i++) order[i]=tmp[i];
+    }
+    function apply(a,b,res){ // res from a's view: 0 win, 1 loss, 2 draw
+      if(res===2){pts[a]++;pts[b]++;dr[a]++;dr[b]++;}
+      else if(res===0){pts[a]+=3;w[a]++;l[b]++;}
+      else {pts[b]+=3;w[b]++;l[a]++;}
+    }
+    const randomRes=()=>{const x=Math.random(); return x<d ? 2 : x<d+(1-d)/2 ? 0 : 1;};
+    for(let r=0;r<RT;r++){
+      if(r===R){ // Day 2 cut
+        M=0; for(let i=0;i<N;i++) if(pts[i]>=T || (i===0 && track && track.forceIn)) act[M++]=i;
+        qualified=M;
+        if(M<2) break;
+      }
+      rankOrder();
+      let m=M;
+      if(M%2){
+        // Bye: lowest-ranked player who hasn't had one. If everyone has, repeat from the
+        // bottom. The tracked player never gets one: their record is fixed.
+        let k=M-1; while(k>=0 && (bye[order[k]] || (track && order[k]===0))) k--;
+        if(k<0){ k=M-1; if(track && order[k]===0) k--; }
+        const b=order[k]; bye[b]=1; pts[b]+=3; w[b]++;
+        for(let i=k;i<M-1;i++) order[i]=order[i+1];
+        m=M-1;
+      }
+      for(let i=0;i<m;i+=2){
+        const a=order[i], b=order[i+1];
+        if(track && (a===0||b===0)){
+          const res = r<seq.length ? seq[r] : randomRes();
+          if(a===0) apply(0,b,res); else apply(0,a,res);
+          continue;
+        }
+        apply(a,b,randomRes());
+      }
+    }
+    rankOrder();
+    const inCut=new Uint8Array(N);
+    for(let i=0;i<Math.min(K,M);i++) inCut[order[i]]=1;
+    onDone(pts,w,l,dr,inCut,track,qualified);
+  }
+
+  /* What "Your record" shows for this record:
+     final  – a full event's record, looked up in the main table
+     missed – finished Day 1 below the Day 2 threshold
+     paths  – every way the next `left` rounds can go (rest of Day 1, or rest of the event) */
+  function youSegment(p,rec){
+    const played=rec.w+rec.l+rec.d, RT=p.R+p.R2, ptsNow=3*rec.w+rec.d, day2=p.R2>0;
+    if(played===0) return {mode:"start"};
+    if(played>RT) return {mode:"over"};
+    if(played===RT) return {mode:"final"};
+    if(day2 && played===p.R && ptsNow<p.T) return {mode:"missed"};
+    if(day2 && played<p.R) return {mode:"paths", day:1, left:p.R-played, forceIn:false};
+    return {mode:"paths", day:day2?2:0, left:RT-played, forceIn:day2};
+  }
+
+  /* ---------- run both simulations in chunks ---------- */
+  function run(){
+    // Mid-edit (players or rounds box cleared): keep showing the last results
+    if(last && ["players","rounds"].some(id=>$(id).value.trim()==="")) return;
+    const p=readParams(); updateHints(p);
+    const rec=readRecord(), played=rec.w+rec.l+rec.d, RT=p.R+p.R2;
+    // Which stretch of rounds "Your record" plans: the rest of Day 1, or the rest of the event
+    const seg = youSegment(p,rec);
+    const tracking = seg.mode==="paths";
+    const my=++job;
+
+    const st=new Map(), adv=new Int32Array(p.S);
+    const main = (pts,w,l,dr,inCut,_t,qualified)=>{
+      for(let i=0;i<p.N;i++){
+        const key=w[i]*1600+l[i]*40+dr[i];
+        let e=st.get(key); if(!e){e={w:w[i],l:l[i],d:dr[i],pts:3*w[i]+dr[i],n:0,cut:0};st.set(key,e);}
+        e.n++; e.cut+=inCut[i];
+      }
+      adv[done]=qualified;
+    };
+    const pre=[]; for(let i=0;i<rec.w;i++)pre.push(0); for(let i=0;i<rec.l;i++)pre.push(1); for(let i=0;i<rec.d;i++)pre.push(2);
+    // Every way the remaining rounds can go (e.g. 2 left: 2-0-0, 1-1-0, …). Each tracked
+    // simulation plays one of them in turn, so every path gets the same number of samples.
+    const left=seg.left, combos=[];
+    if(tracking) for(let a=left;a>=0;a--) for(let b=left-a;b>=0;b--) combos.push({rw:a,rl:b,rd:left-a-b});
+    const TS = !tracking ? 0 : Math.max(p.S, Math.min(combos.length*300, Math.floor(3e8/(p.N*RT))));
+    const tr=new Map();
+    const trackDone=(pts,w,l,dr,inCut,x)=>{
+      const c=x.combo, key=c.rw*400+c.rl*20+c.rd;
+      let e=tr.get(key); if(!e){e={rw:c.rw,rl:c.rl,rd:c.rd,n:0,cut:0};tr.set(key,e);}
+      e.n++; e.cut+=inCut[0];
+    };
+    function trackJob(t){
+      const combo=combos[t%combos.length], seq=pre.slice(), fut=[];
+      for(let i=pre.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const x=seq[i];seq[i]=seq[j];seq[j]=x;}
+      for(let i=0;i<combo.rw;i++)fut.push(0); for(let i=0;i<combo.rl;i++)fut.push(1); for(let i=0;i<combo.rd;i++)fut.push(2);
+      for(let i=fut.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;const x=fut[i];fut[i]=fut[j];fut[j]=x;}
+      return {seq:seq.concat(fut), combo, forceIn:seg.forceIn};
+    }
+
+    let done=0, tdone=0;
+    const total = p.S+TS;
+    const chunk=Math.max(20, Math.floor(400000/(p.N*RT)));
+    let frames=0;
+    function step(){
+      if(my!==job) return;
+      const end=Math.min(p.S,done+chunk);
+      for(;done<end;done++) simulateEvent(p,main);
+      if(tracking){ const tend=Math.min(TS,tdone+chunk); for(;tdone<tend;tdone++) simulateEvent(p,trackDone,trackJob(tdone)); }
+      const progress=done+tdone;
+      $("prog").style.width=(100*progress/total)+"%";
+      const finished = done>=p.S && tdone>=TS;
+      if(++frames%6===1 || finished){
+        last={p,st,S:done,adv:adv.subarray(0,done)};
+        render(p,st,done,adv.subarray(0,done));
+        renderYou(tracking?{tr,S:tdone,rec,p}:null);
+      }
+      if(!finished) requestAnimationFrame(step);
+      else setTimeout(()=>{ if(my===job) $("prog").style.width="0"; },400);
+    }
+    step();
+  }
+
+  const pct=x=> x>=.995?">99%": x<=.005 && x>0 ? "<1%" : x===0 ? "0%" : Math.round(x*100)+"%";
+  const fmt=x=> x>=10? x.toFixed(0) : x>=1? x.toFixed(1) : x>=.05? x.toFixed(2) : x>0? "<0.05":"0";
+  const pillCls=c=> c>=.99?"p-lock":c>=.6?"p-likely":c>=.02?"p-bubble":c>0?"p-out":"p-none";
+  const recS=(w,l,d)=>`${w}-${l}-${d}`;
+
+  function pointsTables(rows,S){
+    const byPts=new Map(), ptsCut=new Map();
+    rows.forEach(r=>{
+      byPts.set(r.pts,(byPts.get(r.pts)||0)+r.n);
+      const e=ptsCut.get(r.pts)||{n:0,c:0}; e.n+=r.n; e.c+=r.cut; ptsCut.set(r.pts,e);
+    });
+    const desc=[...byPts.keys()].sort((a,b)=>b-a), atOrAbove=new Map(); let run=0;
+    desc.forEach(k=>{run+=byPts.get(k);atOrAbove.set(k,run/S);});
+    const above=pt=>{let s=0;byPts.forEach((n,k)=>{if(k>pt)s+=n;});return s/S;};
+    return {byPts,ptsCut,atOrAbove,above};
+  }
+
+  function render(p,st,S,adv){
+    const rows=[...st.values()].sort((a,b)=>b.pts-a.pts||b.w-a.w||a.l-b.l);
+    const maxE=Math.max(...rows.map(r=>r.n))/S;
+    const {ptsCut,atOrAbove}=pointsTables(rows,S);
+    const RT=p.R+p.R2, rec=readRecord(), recN=rec.w+rec.l+rec.d;
+    const mine = recN===RT || (p.R2>0 && recN===p.R) ? rec : null;
+
+    let html="", lastPts=null;
+    rows.forEach(r=>{
+      const e=r.n/S, c=r.cut/r.n;
+      const isMine = mine && mine.w===r.w && mine.l===r.l && mine.d===r.d;
+      const cls=[lastPts!==null&&r.pts!==lastPts?"group-start":"", isMine?"mine":""].join(" ");
+      const out1 = p.R2>0 && r.w+r.l+r.d<RT; // stopped after Day 1
+      html+=`<tr class="${cls}">
+        <td class="rec">${recS(r.w,r.l,r.d)}${isMine?'<span class="tag">you</span>':""}${out1?'<span class="tag">Out after Day 1</span>':""}</td>
+        <td class="num">${r.pts}</td>
+        <td class="num">${fmt(e)}</td>
+        <td class="barcell"><div class="bar ${c<.02?"dim":""}" style="width:${Math.max(1,100*e/maxE)}%"></div></td>
+        <td class="num">${fmt(atOrAbove.get(r.pts))}</td>
+        <td class="num"><span class="pill ${pillCls(c)}">${pct(c)}</span></td>
+        ${p.T!==null?`<td class="c">${!out1?'<span class="yes">✓</span>':'<span class="no">—</span>'}</td>`:""}</tr>`;
+      lastPts=r.pts;
+    });
+    $("rows").innerHTML=html;
+
+    const ptsList=[...ptsCut.entries()].sort((a,b)=>b[0]-a[0]);
+    let safe=null, bubble=[];
+    // "Locked in" = the lowest total where it and every higher total make the cut 99%+ of the time
+    let unsafeAbove=false;
+    ptsList.forEach(([pt,e])=>{const c=e.c/e.n; if(c>=.99){ if(!unsafeAbove) safe=pt; } else { unsafeAbove=true; if(c>=.02) bubble.push([pt,c]); }});
+    const recFor=pt=>rows.filter(r=>r.pts===pt).sort((a,b)=>b.n-a.n)[0];
+    const rs=pt=>{const r=recFor(pt);return r?recS(r.w,r.l,r.d):"";};
+    const bub=bubble[0];
+    let d2="";
+    if(p.T!==null && p.T>3*p.R){
+      d2=`<div class="stat d2"><div class="label">Day 2 at ${p.T}+ pts</div>
+        <div class="v">—</div><div class="s">Out of reach: ${p.R} rounds give at most ${3*p.R} pts</div></div>`;
+    } else if(p.T!==null && adv.length){
+      const sorted=Array.from(adv).sort((a,b)=>a-b), q=f=>sorted[Math.min(sorted.length-1,Math.floor(f*sorted.length))];
+      const mean=sorted.reduce((s,x)=>s+x,0)/sorted.length;
+      d2=`<div class="stat d2"><div class="label">Day 2 at ${p.T}+ pts</div>
+        <div class="v">${fmt(mean)} <span style="font-size:15px;font-weight:500">players</span></div>
+        <div class="s">${Math.round(100*mean/p.N)}% of the field · usually ${q(.1)}–${q(.9)}${p.K>0&&mean<p.K?` · fewer than ${p.K}, so all of them make the cut`:""}</div></div>`;
+    }
+    $("summary").innerHTML=`
+      <div class="stat cut"><div class="label">Locked in at</div>
+        <div class="v">${p.K>=p.N?"Any record":safe!==null?safe+" pts":"—"}</div>
+        <div class="s">${p.K>=p.N?`Everyone makes the top ${p.K}`:safe!==null?`e.g. ${rs(safe)} · top ${p.K} in 99%+ of events`:"No record is a guaranteed lock"}</div></div>
+      <div class="stat bubble"><div class="label">The bubble</div>
+        <div class="v">${bub?bub[0]+" pts":"—"}</div>
+        <div class="s">${bub?`e.g. ${rs(bub[0])} · makes top ${p.K} ${pct(bub[1])} of the time`:"Clean cut — no coin-flip record"}</div></div>
+      <div class="stat field-s"><div class="label">Undefeated players</div>
+        <div class="v">${fmt(rows.filter(r=>r.w===RT).reduce((s,r)=>s+r.n,0)/S)}</div>
+        <div class="s">expected ${RT}-0-0 finishers</div></div>${d2}`;
+  }
+
+  /* ---------- Your record panel ---------- */
+  function renderYou(tracked){
+    if(!last) return;
+    const {p,st,S}=last, rec=readRecord(), played=rec.w+rec.l+rec.d, out=$("youOut");
+    const ptsNow=3*rec.w+rec.d, RT=p.R+p.R2, seg=youSegment(p,rec);
+    const ptsWord=n=>`${n} pt${n===1?"":"s"}`;
+    if(seg.mode==="over"){ $("modeTag").textContent="Check record"; out.innerHTML=`<p class="err">That's ${played} rounds, but the event has ${RT}. Lower wins, losses or draws.</p>`; return; }
+    if(seg.mode==="start"){ $("modeTag").textContent="Before round 1"; out.innerHTML=`<p class="verdict">Enter at least one result, or use the table below for final records.</p>`; return; }
+    if(seg.mode==="missed"){
+      $("modeTag").textContent="End of Day 1";
+      out.innerHTML=`<p class="verdict">Finishing Day 1 at <b>${recS(rec.w,rec.l,rec.d)}</b> (${ptsWord(ptsNow)}) misses the Day 2 cut of ${ptsWord(p.T)}, so the event ends there and there's no top ${p.K} chance.</p>`;
+      return;
+    }
+
+    if(seg.mode==="final"){
+      $("modeTag").textContent="Final record";
+      const rows=[...st.values()], {byPts,ptsCut,above}=pointsTables(rows,S);
+      const r=rows.find(x=>x.w===rec.w&&x.l===rec.l&&x.d===rec.d);
+      const pc=ptsCut.get(ptsNow);
+      const c = r ? r.cut/r.n : pc ? pc.c/pc.n : null;
+      const ab=above(ptsNow), tied=(byPts.get(ptsNow)||0)/S;
+      const best=Math.floor(ab)+1, worst=Math.max(best,Math.round(ab+tied));
+      out.innerHTML = c===null ? `<p class="verdict">Nobody finished ${recS(rec.w,rec.l,rec.d)} in the simulations — it's very rare in this field.</p>` : `
+        <p class="verdict">Finishing <b>${recS(rec.w,rec.l,rec.d)}</b> (${ptsNow} pts) makes the top ${p.K} <span class="pill ${pillCls(c)}">${pct(c)}</span> of the time.</p>
+        <div class="facts">
+          <div class="fact"><div class="v">${fmt(ab)}</div><div class="s">players on more points than you</div></div>
+          <div class="fact"><div class="v">${fmt(Math.max(0,tied-1))}</div><div class="s">others tied on ${ptsNow} pts</div></div>
+          <div class="fact"><div class="v">#${best}${worst>best?"–"+worst:""}</div><div class="s">typical rank range, set by tiebreakers</div></div>
+        </div>`;
+      return;
+    }
+
+    // partway through: every way the rest of Day 1 (or the rest of the event) can go
+    const left=seg.left, inDay1=seg.day===1;
+    $("modeTag").textContent=`${seg.day?`Day ${seg.day} · `:""}After round ${played} · ${left} to go${inDay1?" today":""}`;
+    if(!tracked){ out.innerHTML=`<p class="verdict">Simulating…</p>`; return; }
+    const paths=[...tracked.tr.values()].map(e=>({...e,pts:ptsNow+3*e.rw+e.rd,c:e.cut/e.n}))
+      .sort((a,b)=>b.pts-a.pts||b.rw-a.rw);
+    const winOut=paths.find(x=>x.rw===left), idOut=paths.find(x=>x.rd===left), loseOut=paths.find(x=>x.rl===left);
+    // least-demanding path that still gets >=90%
+    const need=[...paths].filter(x=>x.c>=.9).sort((a,b)=>a.pts-b.pts||a.rd-b.rd)[0];
+    const label=x=> x.rw===left?"Win out": x.rd===left?"ID out": x.rl===left?"Lose out":"";
+    const span = inDay1 ? `Day 1 round${left>1?"s":""}` : `round${left>1?"s":""}`;
+    let verdict=`At <b>${recS(rec.w,rec.l,rec.d)}</b> (${ptsWord(ptsNow)}) with ${left} ${span} left: `;
+    const bits=[];
+    if(winOut) bits.push(`winning out${inDay1?" today":""} makes top ${p.K} <span class="pill ${pillCls(winOut.c)}">${pct(winOut.c)}</span>`);
+    if(idOut) bits.push(`drawing out <span class="pill ${pillCls(idOut.c)}">${pct(idOut.c)}</span>`);
+    verdict += bits.length ? bits.join(", ")+". " : "still simulating. ";
+    const fromHere = inDay1 ? "for the rest of Day 1" : "from here";
+    verdict+= loseOut && loseOut.c>=.99 ? `You make the top ${p.K} even if you lose out.`
+      : need ? `The least you need for a 90%+ shot is <b>${recS(need.rw,need.rl,need.rd)}</b> ${fromHere}.`
+      : inDay1 ? `No Day 1 finish gets you to 90% on its own; the rest depends on Day 2.` : `No path reaches a 90% chance — you'll likely need tiebreakers.`;
+    let d2txt="";
+    if(inDay1){
+      const reach=paths.filter(x=>x.pts>=p.T).sort((a,b)=>a.pts-b.pts||a.rd-b.rd)[0];
+      d2txt = ptsNow>=p.T ? ` You've already locked in Day 2 (${ptsWord(p.T)}).`
+        : reach ? ` Making Day 2 (${ptsWord(p.T)}) takes ${ptsWord(p.T-ptsNow)} more — e.g. ${recS(reach.rw,reach.rl,reach.rd)}.`
+        : ` Day 2 (${ptsWord(p.T)}) is out of reach.`;
+      d2txt += ` Odds include playing Day 2 if you make it.`;
+    }
+    const showD2 = inDay1;
+    let html=`<p class="verdict">${verdict}${d2txt}</p>
+      <div class="tablebox"><table class="paths"><thead><tr><th>${inDay1?"Rest of Day 1":"Rest of event"}<span class="lg"> (W-L-D)</span></th><th>${inDay1?"Day 1 record":"Final record"}</th><th class="num">${inDay1?"Pts after Day 1":"Points"}</th><th class="num">Top ${p.K} chance</th>${showD2?'<th class="c">Day 2</th>':""}</tr></thead><tbody>`;
+    paths.forEach(x=>{
+      html+=`<tr><td class="rec">${recS(x.rw,x.rl,x.rd)}${label(x)?`<span class="tag">${label(x)}</span>`:""}</td>
+        <td class="rec">${recS(rec.w+x.rw,rec.l+x.rl,rec.d+x.rd)}</td>
+        <td class="num">${x.pts}</td>
+        <td class="num"><span class="pill ${pillCls(x.c)}">${pct(x.c)}</span></td>
+        ${showD2?`<td class="c">${x.pts>=p.T?'<span class="yes">✓</span>':'<span class="no">—</span>'}</td>`:""}</tr>`;
+    });
+    out.innerHTML=html+`</tbody></table></div>`;
+  }
+
+  // Stop the current run right away, so it can't paint results for the old inputs
+  // (e.g. the old record's paths under a new record) during the 250 ms wait.
+  let t; function schedule(){ job++; clearTimeout(t); t=setTimeout(run,250); }
+  $("players").addEventListener("input",()=>{
+    if(!roundsTouched){ const n=Number($("players").value); if(n>=4){ $("rounds").value=suggestedRounds(n); syncThresh(); } }
+    schedule();
+  });
+  let rounds2Touched=false;
+  function syncThresh(){
+    const R=num($("rounds").value,1,18,6);
+    if(!threshTouched) $("thresh").value = threshDefault(R);
+    if(!rounds2Touched) $("rounds2").value = day2Default(R);
+  }
+  $("rounds").addEventListener("input",()=>{roundsTouched=true;syncThresh();schedule();});
+  $("thresh").addEventListener("input",()=>{threshTouched=true;schedule();});
+  $("rounds2").addEventListener("input",()=>{rounds2Touched=true;schedule();});
+  ["draws","cut","sims","threshOn"].forEach(id=>$(id).addEventListener("input",schedule));
+  $("threshOn").addEventListener("change",schedule);
+  syncThresh();
+  ["yw","yl","yd"].forEach(id=>$(id).addEventListener("input",()=>{
+    const p=readParams(), r=readRecord(), pl=r.w+r.l+r.d;
+    // final-record lookups reuse the last run; mid-event needs its own simulation
+    const mode=youSegment(p,r).mode;
+    if(last && mode!=="paths"){ render(last.p,last.st,last.S,last.adv); renderYou(null); }
+    else schedule();
+  }));
+  $("form").addEventListener("submit",e=>e.preventDefault());
+  run();
+})();
+</script>
+
+</body>
+</html>
