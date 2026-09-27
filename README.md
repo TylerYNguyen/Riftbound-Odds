@@ -1,71 +1,53 @@
-# Riftbound Calculator Site
+# Riftbound Live Odds
 
-Live top-cut odds for Riftbound events. Paste an event locator link
-(e.g. `https://locator.riftbound.uvsgames.com/events/512931`) and the site pulls
-current standings and pairings. It then plays out every result still to come
-and ranks players the same way the event locator does: points, then opponents' match win %,
-then game win %, then opponents' game win % (checked against the locator's official standings).
+Live top-cut odds for Riftbound TCG tournaments.
 
-Also includes the **Swiss planner** (`/planner.html`). It shows how many players end on each
-record, the "what do I need" mode, and Day 2 threshold odds, all for a hypothetical event.
+**[rb-odds.vercel.app](https://rb-odds.vercel.app)** · [Try the demo event](https://rb-odds.vercel.app/?event=demo) · [Swiss planner](https://rb-odds.vercel.app/planner.html)
 
-## Run it on your computer
+Paste an event link from the official Riftbound event locator (for example
+`https://locator.riftbound.uvsgames.com/events/683264`), or just the event number. The site pulls the
+current standings and pairings, plays out every result still to come, and shows each player's chance of
+making the top cut. Players are ranked the same way the event locator does: points, then opponents' match
+win %, then game win %, then opponents' game win % (checked against the locator's official standings).
 
-Requires Node.js 18 or newer.
+## Features
 
-```bash
-cd D:\Claude\riftbound-calculator-site
-npm install
-npm run dev
-```
+- Top-cut odds for every player, plus where they're likely to finish
+- "If win / If draw / If lose" odds for each player's next match
+- "What you need": every path through the remaining rounds, with the odds for each
+- Two-day events: Day 2 odds, plus a Day 2 view with its own standings
+- Follow yourself or a group of friends, and share a link that opens straight to them
+- Rewind to see the odds as they stood at any earlier round
+- Top cut bracket with each player's odds to reach every round
+- Auto-refresh during live events
+- Works on phones and desktop, in light and dark mode
 
-Open the address it prints (usually http://localhost:5173). Try `demo` in the box, or paste a real
-event link. The dev server answers `/api/event` and `/api/round` itself (running the same code as
-the Vercel functions), so real events work locally too.
+**Swiss planner** (`/planner.html`): how many players end on each record, the "what do I need" mode, and
+Day 2 threshold odds, all for a hypothetical event.
 
-## Deploy to Vercel
+## How it works
 
-1. Create a new GitHub repo named `riftbound-calculator-site` and push this folder:
-   ```bash
-   git init
-   git add .
-   git commit -m "Riftbound calculator site"
-   git branch -M main
-   git remote add origin https://github.com/TylerYNguyen/riftbound-calculator-site.git
-   git push -u origin main
-   ```
-2. In Vercel, choose **Add New → Project** and import that repo. It detects Vite on its own, with no settings to change.
-3. Deploy. The files in `api/` become the server functions `/api/event` and `/api/round`.
+- **Data:** two Vercel serverless functions (`api/event.js`, `api/round.js`) read the event locator's feed
+  and send the page a trimmed version, one round at a time.
+- **Odds:** the page plays out the rest of the event many times (`src/lib/live.js`), pairing players by
+  points with no rematches, and handling byes, drops and the Day 2 cut. When only the current round's
+  matches are left, it checks every possible outcome exactly. The work runs in background Web Workers so
+  large events stay responsive.
+- **Built with:** React, Vite, Web Workers and Vercel serverless functions.
 
-## How the pieces fit
-
-| Path | What it does |
-| --- | --- |
-| `api/event.js` | Vercel server function: `GET /api/event?id=512931`, the event and its round list (cached 20 s) |
-| `api/round.js` | Vercel server function: `GET /api/round?id=<roundId>`, one round's matches. Finished rounds are cached for an hour on Vercel's CDN; the round being played for 20 s |
-| `server/loadEvent.js` | Reads the locator's public data feed (at most 4 pages of a round at once) and trims it to a small shape |
-| `server/respond.js` | Cache rules and error replies shared by the functions |
-| `src/lib/fetchEvent.js` | The page's loader: event info, then each round (2 at a time), reusing finished rounds on refresh |
-| `src/lib/live.js` | The odds engine: rebuilds standings and tiebreakers, then checks every combination (when only this round's unfinished matches are left) or simulates (when rounds remain). `planRuns()` sets the accuracy targets: ±3% early, ±1% late, 40,000 runs for 128 players or fewer |
-| `src/lib/runner.js` | Splits the simulation across background workers (one per spare CPU core), streams results in, stops at the target or 30 seconds |
-| `src/lib/oddsWorker.js` | The background worker itself |
-| `src/App.jsx` | The page: load an event, settings, "follow a player" card, standings table |
-| `src/demo.json` | Invented sample event for trying it without a live tournament |
-| `public/planner.html` | The standalone Swiss planner |
-| `public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png` | Tab icon and phone home-screen icon |
-
-### Data feed used
+## Data feed
 
 ```
 https://api.cloudflare.riftbound.uvsgames.com/hydraproxy/api/v2/events/{eventId}/
 https://api.cloudflare.riftbound.uvsgames.com/hydraproxy/api/v2/tournament-rounds/{roundId}/matches/paginated/?page=1&page_size=100
 ```
 
-This is the same feed the locator website reads from. It's public but not officially documented,
-so it could change. If imports break, check the Network tab on the locator site for the new
-addresses. Vercel's CDN caches the event and the round in play for 20 seconds and finished rounds
-for an hour, so a room full of players doesn't hammer it.
+This is the same feed the event locator website reads from. It's public but not officially documented, so
+it could change. To keep the load on it low, Vercel's CDN caches the event and the round in play for
+20 seconds and finished rounds for an hour, so a room full of players refreshing at once doesn't hammer it.
 
-Unofficial fan tool, not affiliated with UVS Games.
+## Legal
+
+Unofficial fan project, not affiliated with Riot Games or UVS Games.
 
 Riftbound Live Odds was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.
