@@ -12,6 +12,7 @@
 const RES = { W: 0, D: 1, L: 2 };
 export const RES_LABEL = ["W", "D", "L"];
 export const EXACT_LIMIT = 8; // up to 3^8 = 6,561 combinations
+export const RANK_EXACT_MAX = 128; // events up to this many (ranked) players track every finishing place
 
 function isComplete(m) {
   return m.status === "COMPLETE" || m.winner != null || m.isDraw || m.isDoubleLoss;
@@ -306,7 +307,16 @@ export function prepareJob(state, { K, drawRate, track = null }) {
     for (let w = track.left; w >= 0; w--) for (let l = track.left - w; l >= 0; l--) combos.push([w, l, track.left - w - l]);
     tr = { i: track.i, left: track.left, combos };
   }
+  // Finishing places: events up to 128 players track every place; bigger ones track tiers that
+  // double from the cut (top 8, 16, 32, 64, …). rankEdges = each bucket's last place (inclusive).
+  const m = state.eligibleCount, Kc = Math.max(1, Math.min(K, m));
+  const edges = [];
+  if (m <= RANK_EXACT_MAX) for (let r = 1; r <= m; r++) edges.push(r);
+  else { for (let t = Kc; t < m; t *= 2) edges.push(t); edges.push(m); }
+  const rankBucket = new Int32Array(m + 1);
+  for (let b = 0, r = 1; r <= m; r++) { while (edges[b] < r) b++; rankBucket[r] = b; }
   return {
+    rankEdges: Int32Array.from(edges), rankBucket, rankExact: m <= RANK_EXACT_MAX,
     day2Rounds: state.day2Rounds || 0, day2T: state.day2T, track: tr,
     n: state.n, K: Math.min(K, state.eligibleCount), d: Math.min(0.9, Math.max(0, drawRate)),
     eligible: state.eligible, eligibleCount: state.eligibleCount,
@@ -319,13 +329,16 @@ export function prepareJob(state, { K, drawRate, track = null }) {
 
 /** Running totals. cond[(i*3 + res)*2] = weight, [+1] = weight that made the cut. */
 // d2[i] = weight where player i made Day 2. tk[(combo*3)] = runs, [+1] = top-cut weight, [+2] = made Day 2.
-export function newAcc(n, combos = 0) {
+// hist[i*B + b] = weight where player i finished in place bucket b (see rankEdges in prepareJob).
+export function newAcc(n, combos = 0, buckets = 0) {
   return { total: 0, top: new Float64Array(n), rankSum: new Float64Array(n), cond: new Float64Array(n * 6),
-    d2: new Float64Array(n), tk: new Float64Array(combos * 3) };
+    d2: new Float64Array(n), tk: new Float64Array(combos * 3), hist: new Float64Array(n * buckets) };
 }
 export const accCombos = (job) => (job.track ? job.track.combos.length : 0);
+export const accBuckets = (job) => (job.track || job.mode === "draw" || !job.rankEdges ? 0 : job.rankEdges.length);
 export function mergeAcc(into, from) {
   into.total += from.total;
+  if (into.hist.length && into.hist.length === from.hist?.length) for (let i = 0; i < into.hist.length; i++) into.hist[i] += from.hist[i];
   for (let i = 0; i < into.d2.length; i++) into.d2[i] += from.d2[i];
   for (let i = 0; i < into.tk.length; i++) into.tk[i] += from.tk[i];
   for (let i = 0; i < into.top.length; i++) { into.top[i] += from.top[i]; into.rankSum[i] += from.rankSum[i]; }
@@ -340,6 +353,7 @@ function makeScratch(job) {
     nextRes: new Int8Array(n), inD2: new Uint8Array(n), d2list: new Int32Array(m), seq: new Int8Array(64), trackN: 0,
     pairOrder: new Int32Array(m), pairTmp: new Int32Array(m), used: new Uint8Array(m),
     bucket: new Int32Array(3 * job.base.maxR + 2), pairs: new Int32Array(m + 1),
+    gb: new Int32Array(job.rankEdges ? job.rankEdges.length : 0), gw: new Float64Array(job.rankEdges ? job.rankEdges.length : 0),
     // "If draw" pass: runs left for each unit, and where the round-robin is up to
     dq: job.drawQuota ? Int32Array.from(job.drawQuota) : null, du: 0,
   };
@@ -360,6 +374,7 @@ function tally(job, sc, acc, weight, combo = -1, only = null) {
   const poolEnd = inCutPool < 0 ? n : inCutPool;
   const K = job.K;
   const tr = job.track;
+  const B = accBuckets(job), hist = !only && !tr && B && acc.hist.length ? acc.hist : null;
   let start = 0;
   while (start < n) {
     let end = start + 1;
@@ -367,6 +382,15 @@ function tally(job, sc, acc, weight, combo = -1, only = null) {
     while (end < n && same(order[end], order[start]) && (end < poolEnd) === (start < poolEnd)) end++;
     const share = start >= poolEnd ? 0 : Math.max(0, Math.min(K, end) - start) / (end - start);
     const avgRank = (start + end + 1) / 2;
+    // places start+1 … end are shared equally by the group: which place buckets, and how much of each
+    let nb = 0;
+    if (hist) {
+      for (let r = start + 1; r <= end;) {
+        const b = job.rankBucket[r], hi = Math.min(end, job.rankEdges[b]);
+        sc.gb[nb] = b; sc.gw[nb++] = (hi - r + 1) / (end - start);
+        r = hi + 1;
+      }
+    }
     for (let k = start; k < end; k++) {
       const i = order[k];
       if (only) {
@@ -379,6 +403,7 @@ function tally(job, sc, acc, weight, combo = -1, only = null) {
       }
       acc.top[i] += share * weight;
       acc.rankSum[i] += avgRank * weight;
+      for (let q = 0; q < nb; q++) hist[i * B + sc.gb[q]] += sc.gw[q] * weight;
       if (day2 && sc.inD2[i]) acc.d2[i] += weight;
       const r = sc.nextRes[i];
       if (r >= 0) { const c = (i * 3 + r) * 2; acc.cond[c] += weight; acc.cond[c + 1] += share * weight; }
@@ -390,7 +415,7 @@ function tally(job, sc, acc, weight, combo = -1, only = null) {
 
 /** Only this round's unfinished matches are left: try every combination (weighted). */
 export function exactAll(job) {
-  const acc = newAcc(job.n), sc = makeScratch(job);
+  const acc = newAcc(job.n, 0, accBuckets(job)), sc = makeScratch(job);
   const d = job.d, pW = (1 - d) / 2;
   for (let c = 0; c < job.combos; c++) {
     copyInto(sc.s, job.base);
@@ -559,7 +584,8 @@ export function finalize(state, job, acc, dacc = null) {
     let d2 = 0;
     for (let i = 0; i < n; i++) if (job.eligible[i]) d2 += acc.d2[i];
     const pDay2 = job.day2Rounds ? d2 / (total * m) : null;
-    for (let i = 0; i < n; i++) results.push({ pTop: Math.min(1, job.K / m), expRank: (m + 1) / 2, cond: pooled, pDay2 });
+    const finish = Array.from(job.rankEdges || [], (t) => Math.min(1, t / m));
+    for (let i = 0; i < n; i++) results.push({ pTop: Math.min(1, job.K / m), expRank: (m + 1) / 2, cond: pooled, pDay2, finish: job.eligible[i] ? finish : null });
   } else {
     for (let i = 0; i < n; i++) {
       const cond = [0, 1, 2].map((r) => {
@@ -569,10 +595,18 @@ export function finalize(state, job, acc, dacc = null) {
         if (dacc && r === RES.D) { nS += dacc.cond[c]; tp += dacc.cond[c + 1]; }
         return nS > 0 ? { p: wt / total, top: tp / nS, n: nS } : null;
       });
-      results.push({ pTop: acc.top[i] / total, expRank: acc.rankSum[i] / total, cond, pDay2: job.day2Rounds ? acc.d2[i] / total : null });
+      // finish[b] = chance of finishing in place rankEdges[b] or better
+      let finish = null;
+      const B = acc.hist.length / n;
+      if (B && job.eligible[i] && acc.total > 0) {
+        finish = new Array(B);
+        for (let b = 0, c = 0; b < B; b++) { c += acc.hist[i * B + b]; finish[b] = Math.min(1, c / total); }
+      }
+      results.push({ pTop: acc.top[i] / total, expRank: acc.rankSum[i] / total, cond, pDay2: job.day2Rounds ? acc.d2[i] / total : null, finish });
     }
   }
-  return { results, method: state.freshStart ? "equal-start" : job.mode, runs: acc.total, combos: job.combos };
+  return { results, method: state.freshStart ? "equal-start" : job.mode, runs: acc.total, combos: job.combos,
+    rankEdges: job.rankEdges ? Array.from(job.rankEdges) : null, rankExact: !!job.rankExact };
 }
 
 /* ---------- how many runs to aim for ---------- */

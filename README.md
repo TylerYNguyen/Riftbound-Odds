@@ -66,4 +66,6 @@ so it could change. If imports break, check the Network tab on the locator site 
 addresses. Vercel's CDN caches the event and the round in play for 20 seconds and finished rounds
 for an hour, so a room full of players doesn't hammer it.
 
-Unofficial fan tool, not affiliated with Riot Games or UVS Games.
+Unofficial fan tool, not affiliated with UVS Games.
+
+Riftbound Live Odds was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.

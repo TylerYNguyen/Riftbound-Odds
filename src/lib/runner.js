@@ -1,7 +1,7 @@
 // Splits the odds calculation across background workers (one per spare CPU core),
 // merges their tallies, reports progress, and stops at the run target or the time limit.
 // After the main odds finish, a second pass sharpens the "If draw" column (see planDrawPass).
-import { prepareJob, newAcc, mergeAcc, finalize, finalizeTrack, accCombos, marginFor, exactAll, simulateBatch, planDrawPass } from "./live.js";
+import { prepareJob, newAcc, mergeAcc, finalize, finalizeTrack, accCombos, accBuckets, marginFor, exactAll, simulateBatch, planDrawPass } from "./live.js";
 import OddsWorker from "./oddsWorker.js?worker&inline";
 
 const DRAW_PASS_MS = 20000; // time limit for the "If draw" pass
@@ -10,7 +10,7 @@ const DRAW_PASS_MS = 20000; // time limit for the "If draw" pass
 // every way their next `left` matches can go gets an equal share of runs.
 export function runOddsLive(state, { K, drawRate, plan, onUpdate, track = null }) {
   const job = prepareJob(state, { K, drawRate, track });
-  const merged = newAcc(state.n, accCombos(job));
+  const merged = newAcc(state.n, accCombos(job), accBuckets(job));
   const started = performance.now();
   const target = job.mode === "exact" ? job.combos : plan.runs;
   let cancelled = false, lastEmit = 0, phase = null;

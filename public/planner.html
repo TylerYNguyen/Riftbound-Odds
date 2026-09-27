@@ -7,6 +7,26 @@
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="Swiss planner for Riftbound events: how many players finish on each record, what record makes the top cut or Day 2, and what you need from here.">
+<link rel="canonical" href="https://rb-odds.vercel.app/planner.html">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E141A" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="RB Odds">
+<!-- Link previews (Discord, iMessage, X, Facebook…). The image must be a full address; update the domain if the site moves. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Riftbound Live Odds">
+<meta property="og:title" content="Riftbound Swiss Planner">
+<meta property="og:description" content="Swiss planner for Riftbound events: how many players finish on each record, what record makes the top cut or Day 2, and what you need from here.">
+<meta property="og:url" content="https://rb-odds.vercel.app/planner.html">
+<meta property="og:image" content="https://rb-odds.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Riftbound Live Odds: live top-cut odds for Riftbound tournaments">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Riftbound Swiss Planner">
+<meta name="twitter:description" content="Swiss planner for Riftbound events: how many players finish on each record, what record makes the top cut or Day 2, and what you need from here.">
+<meta name="twitter:image" content="https://rb-odds.vercel.app/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -40,6 +60,7 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding:28px 16px 48px}
 .wrap{max-width:980px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.site-foot{margin:0;color:var(--muted);font-size:12px;line-height:1.5;text-align:center}
 .wrap > *, .you > *{min-width:0}
 header h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,5vw,38px);letter-spacing:.01em;margin:0;text-wrap:balance;line-height:1.1}
 header h1 span{color:var(--accent)}
@@ -260,6 +281,7 @@ tr.mine td{background:var(--accent-soft)}
     <p><strong>Mid-event mode</strong> plays out the rest of the event with your results locked in, then tries every combination of wins, losses and draws for your remaining rounds. An ID is modeled as a draw for both you and your opponent.</p>
     <p>Assumptions: every match is a 50/50 between equal players, the odd player out gets a bye counted as a win, and pairings go high-to-high by points without rematch checks. Real events add intentional draws and drops, which usually loosen the bubble slightly.</p>
   </section>
+  <p class="site-foot">Riftbound Live Odds was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</p>
 </div>
 
 <script>

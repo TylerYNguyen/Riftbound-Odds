@@ -76,8 +76,10 @@ function stageOptions(data) {
     : [{ label: `Swiss (R1–${data.swiss?.plannedRounds || (data.rounds || []).length || "?"})`, started: true }];
   if (data.cut) {
     const nums = data.cut.rounds.map((r) => r.number);
-    const first = nums.length ? Math.min(...nums) : null;
-    const range = first ? ` (R${first}–${first + (data.cut.plannedRounds || nums.length) - 1})` : "";
+    // Before the top cut starts it has no rounds listed yet: it follows the last Swiss round.
+    const first = nums.length ? Math.min(...nums) : data.swiss?.plannedRounds ? data.swiss.plannedRounds + 1 : null;
+    const count = data.cut.plannedRounds || nums.length;
+    const range = first && count ? ` (R${first}–${first + count - 1})` : "";
     opts.push({ label: `Top ${data.cut.size || "cut"}${range}`, started: cutStarted(data), cut: true });
   }
   return opts;
@@ -97,7 +99,7 @@ function phaseView(data, idx) {
   return {
     data: { ...data, rounds, swiss: { ...data.swiss, plannedRounds: planned, status: phaseDone ? "COMPLETE" : "IN_PROGRESS" } },
     eligibleIds, planned: phaseDone && played ? played : planned,
-    firstRound: phases[idx].first ?? 1,
+    firstRound: phaseFirst(phases, idx),
   };
 }
 // Day 2 cut for a Day 1 view: the next Swiss phase's round count, and the points needed.
@@ -118,10 +120,15 @@ function day2Info(data) {
   }
   return { rounds: phases[1].rounds || 0, rule, used, def: used ?? rule, day1Rounds };
 }
+// First round number of Swiss phase i. The locator only lists a day's rounds once that day starts,
+// so before then it follows on from the previous day (Day 1 R1–8 → Day 2 starts at R9).
+function phaseFirst(phases, i) {
+  if (phases[i]?.first != null) return phases[i].first;
+  return i === 0 ? 1 : phaseFirst(phases, i - 1) + (phases[i - 1]?.rounds || 0);
+}
 const phaseLabel = (phases, i) => {
-  const p = phases[i];
-  const last = (p.first ?? 1) + (p.rounds || 1) - 1;
-  return `Day ${i + 1} (R${p.first ?? "?"}–${last})`;
+  const first = phaseFirst(phases, i);
+  return `Day ${i + 1} (R${first}–${first + (phases[i].rounds || 1) - 1})`;
 };
 
 // "Master Yi, Wuju Bladesman" → "Master Yi"
@@ -955,6 +962,7 @@ export default function App() {
           </div>
         </div>
       </section>
+      <footer className="site-foot">Riftbound Live Odds was created under Riot Games' "Legal Jibber Jabber" policy using assets owned by Riot Games. Riot Games does not endorse or sponsor this project.</footer>
     </div>
   );
 }
@@ -1241,11 +1249,41 @@ function LegendTable({ standings, odds, state, K, day2, day2View, onPick, narrow
   );
 }
 
+// Where a player tends to finish (from the place tallies in live.js). The average place misleads when
+// the outcomes are spread out (a 7-0 player at a 2,000-player event "averages" #75), so show the middle
+// outcome instead, plus, where every place is tracked (up to 128 players), the usual range, and the
+// chance to finish in the tiers above the cut (top 16, 32, 64, …).
+function finishInfo(o, odds, K, m) {
+  const f = o?.finish, edges = odds?.rankEdges;
+  if (!f || !edges || f.length !== edges.length || !edges.length) return null;
+  const at = (p) => { const b = f.findIndex((c) => c >= p - 1e-9); return b < 0 ? edges.length - 1 : b; };
+  const mid = at(0.5), last = edges.length - 1;
+  let half = null;
+  const sure = odds.rankExact && f[mid] - (mid > 0 ? f[mid - 1] : 0) >= 0.995; // one place is (almost) certain
+  if (sure) half = `Finishes #${edges[mid]}`;
+  else if (odds.rankExact) half = edges[mid] === 1 ? "Half the time: finishes #1" : `Half the time: #${edges[mid]} or better`;
+  else if (mid < last) half = `Half the time: top ${edges[mid]} or better`;
+  else if (last > 0) half = `Usually outside the top ${edges[last - 1]}`;
+  const lo = edges[at(0.1)], hi = edges[at(0.9)];
+  const range = odds.rankExact && !sure && lo !== hi ? `Usually #${lo}–#${hi}` : null;
+  const tiers = [];
+  if (!(o.pTop >= 0.995)) {
+    for (let t = K * 2; t < m && tiers.length < 4; t *= 2) {
+      const b = edges.indexOf(t);
+      if (b < 0) continue;
+      tiers.push([t, f[b]]);
+      if (f[b] >= 0.995) break;
+    }
+  }
+  return { half, range, tiers };
+}
+
 function FocusCard({ state, odds, i, K, standings, pending, onUnfollow, day2, need, left, cardRef, link, eventName, groupSize = 1 }) {
   const [shareMsg, share] = useShare(i);
   const p = state.players[i];
   const row = standings.find((r) => r.i === i);
   const o = odds.results[i];
+  const fin = finishInfo(o, odds, K, state.eligibleCount);
   const oppIdx = pending ? (pending.a === i ? pending.b : pending.a) : -1;
   const opp = oppIdx >= 0 ? state.players[oppIdx] : null;
   const next = pending
@@ -1276,10 +1314,17 @@ function FocusCard({ state, odds, i, K, standings, pending, onUnfollow, day2, ne
         <div className="big">
           <div className="label">Top {K} chance</div>
           <span className={pillClass(o.pTop) + " big-pill"}>{pct(o.pTop)}</span>
-          <div className="muted small">Expected finish ≈ #{o.expRank.toFixed(1)}</div>
+          {fin?.half && <div className="muted small">{fin.half}</div>}
+          {fin?.range && <div className="muted small">{fin.range}</div>}
           {day2 && o.pDay2 != null && <div className="muted small">Day 2 ({day2.threshold}+ pts): <b className="cond">{pct(o.pDay2)}</b></div>}
         </div>
       </div>
+      {fin?.tiers.length > 0 && (
+        <p className="finish-tiers small">
+          <span className="ft-k">Finish odds</span>
+          {fin.tiers.map(([t, p], k) => <span className="ft" key={t}>Top {t} <b>{pct(p)}</b>{k < fin.tiers.length - 1 ? " ·" : ""}</span>)}
+        </p>
+      )}
       {shareMsg === "manual" && (
         <div className="share-manual">
           <label className="small muted" htmlFor="share-url">Copy this link to share {p.handle}'s odds:</label>
